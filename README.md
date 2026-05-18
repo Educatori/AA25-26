@@ -5,18 +5,18 @@
 ### CSS (cartella `css/`)
 | File | Ruolo |
 |------|-------|
-| `convitto-theme.css` | ⭐ NUOVO — tema base condiviso da tutte le pagine |
-| `dashboard-style.css` | Restyling dark (usato da dashboard.html e cruscotto.html) |
+| `campus-theme.css` | ⭐ NUOVO — tema base condiviso da tutte le pagine |
+| `dashboard-style.css` | Restyling Light (usato da dashboard.html e cruscotto.html) |
 | `cruscotto-style.css` | Identico a dashboard-style.css |
-| `bus-style.css` | Restyling dark (bus-8 e bus-16) |
-| `dinner-style.css` | Restyling dark |
-| `rooming-style.css` | Restyling dark |
-| `transfer-style.css` | Restyling dark |
-| `uscita-style.css` | Restyling dark |
+| `bus-style.css` | Restyling Light  (bus-8 e bus-16) |
+| `dinner-style.css` | Restyling Light  |
+| `rooming-style.css` | Restyling Light  |
+| `transfer-style.css` | Restyling Light  |
+| `uscita-style.css` | Restyling Light  |
 
 ### HTML (root)
 Tutti gli HTML sono stati aggiornati per:
-1. Importare `css/convitto-theme.css` **prima** del CSS specifico
+1. Importare `css/campus-theme.css` **prima** del CSS specifico
 2. Aggiungere `<img src="assets/Logo.png" class="print-logo">` nell'header (visibile solo in stampa)
 3. Titoli ripuliti (rimossi i `••••`)
 4. Login screen del cruscotto adattato al tema dark
@@ -31,7 +31,7 @@ Tutti gli HTML sono stati aggiornati per:
 ## Struttura file attesa nel repo
 
 ```
-convitto2025/
+root/
 ├── index.html
 ├── bus-8.html
 ├── bus-16.html
@@ -39,14 +39,13 @@ convitto2025/
 ├── dashboard.html
 ├── dashboard_ADRI.html
 ├── dinner.html
-├── presenze-dinner.html   ← alias di dinner.html
 ├── rooming.html
 ├── transfer.html
 ├── uscita.html
 ├── assets/
 │   └── Logo.png           ← il tuo logo (già pronto)
 ├── css/
-│   ├── convitto-theme.css ← NUOVO, va aggiunto
+│   ├── campus-theme.css ← NUOVO, va aggiunto
 │   ├── bus-style.css
 │   ├── cruscotto-style.css
 │   ├── dashboard-style.css
