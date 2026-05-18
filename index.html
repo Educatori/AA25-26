@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Convitto 2025 — Indice</title>
-<link rel="stylesheet" href="css/convitto-theme.css">
+<title>Campus — Indice</title>
+<link rel="stylesheet" href="css/campus-theme.css">
 <style>
 /* ─── INDEX-SPECIFIC ─────────────────────────────────────────── */
 body {
@@ -154,18 +154,18 @@ h1 {
 }
 
 /* ─── LIGHT MODE (mobile con sistema chiaro) ────────────────── */
-@media (max-width: 768px) and (prefers-color-scheme: dark) {
+@media (max-width: 768px) and (prefers-color-scheme: light) {
     body {
         background: var(--bg);
         background-image:
-            radial-gradient(ellipse 80% 50% at 50% -10%, rgba(79,142,247,0.08), transparent),
-            radial-gradient(ellipse 60% 40% at 80% 110%, rgba(56,217,169,0.05), transparent);
+            radial-gradient(ellipse 80% 50% at 50% -10%, rgba(37,99,235,0.08), transparent),
+            radial-gradient(ellipse 60% 40% at 80% 110%, rgba(13,148,136,0.05), transparent);
     }
     h1 {
         background: linear-gradient(90deg, var(--header-grad-start), var(--header-grad-end));
         -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    #digitalClock { color: var(--accent); text-shadow: 0 0 20px rgba(79,142,247,0.25); }
+    #digitalClock { color: var(--accent); text-shadow: 0 0 20px rgba(37,99,235,0.25); }
     .link-card { background: var(--surface); border-color: var(--border); box-shadow: var(--shadow-sm); }
     .link-card svg { stroke: var(--accent); filter: none; }
     .link-card span { color: var(--text-2); }
@@ -178,7 +178,7 @@ h1 {
 <body>
 
 <div class="header-container">
-    <h1>CONVITTO 2025</h1>
+    <h1>Campus - indice</h1>
     <div id="todayDate">Caricamento...</div>
     <div id="digitalClock">00:00:00</div>
 </div>
