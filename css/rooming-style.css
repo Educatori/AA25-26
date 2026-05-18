@@ -102,5 +102,12 @@ h1 {
     .room-info { background: #d1d9e0 !important; border-right: 1px solid #333 !important; color: #1a2236 !important; }
     .student-name b { color: black !important; }
     .student-details { color: #1a2236 !important; }
-    @page { size: A4 portrait; margin: 0.5cm; }
+    .student-row,
+    .row-student {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        line-height: 1.7 !important;   /* compatto */
+        min-height: auto !important;
+    }
+     @page { size: A4 portrait; margin: 0.5cm; }
 }
