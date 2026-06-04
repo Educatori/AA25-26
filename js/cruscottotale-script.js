@@ -1,5 +1,5 @@
 /**
- * CRUSCOTTO-SCRIPT.JS - Versione Integrale con Firebase Sync
+ * CRUSCOTTOTALE-SCRIPT.JS - Versione Integrale con Firebase Sync
  */
 
 let cambiTurnoManuali = {};
