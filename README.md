@@ -6,13 +6,6 @@
 | File | Ruolo |
 |------|-------|
 | `campus-theme.css` | ⭐ NUOVO — tema base condiviso da tutte le pagine |
-| `dashboard-style.css` | Restyling Light (usato da dashboard.html e cruscotto.html) |
-| `cruscotto-style.css` | Identico a dashboard-style.css |
-| `bus-style.css` | Restyling Light  (bus-8 e bus-16) |
-| `dinner-style.css` | Restyling Light  |
-| `rooming-style.css` | Restyling Light  |
-| `transfer-style.css` | Restyling Light  |
-| `uscita-style.css` | Restyling Light  |
 
 ### HTML (root)
 Tutti gli HTML sono stati aggiornati per:
@@ -33,28 +26,19 @@ Tutti gli HTML sono stati aggiornati per:
 ```
 root/
 ├── index.html
-├── bus-8.html
-├── bus-16.html
-├── cruscotto.html
-├── dashboard.html
-├── dashboard_ADRI.html
-├── dinner.html
-├── rooming.html
-├── transfer.html
-├── uscita.html
+├── campus_hub.html
+├── roomcloud.html
 ├── assets/
 │   └── Logo.png           ← il tuo logo (già pronto)
 ├── css/
-│   ├── campus-theme.css ← NUOVO, va aggiunto
-│   ├── bus-style.css
-│   ├── cruscotto-style.css
-│   ├── dashboard-style.css
-│   ├── dinner-style.css
-│   ├── rooming-style.css
-│   ├── transfer-style.css
-│   └── uscita-style.css
+│   ├── campus-theme.css
+│   ├── campus_hub-style.css
 └── js/
-    └── (invariati)
+    ├── firebase-cruscotto-sync.js
+    ├── firebase-cruscotto-config.js
+    ├── firebase-roomcloud-config.js
+    └── campus_hub-script.js
+    
 ```
 
 ## Note sul tema
