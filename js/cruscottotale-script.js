@@ -1,5 +1,5 @@
 /**
- * CRUSCOTTOTALE-SCRIPT.JS - Versione Integrale con Firebase Sync
+ * CAMPUS_HUB-SCRIPT.JS - Versione Integrale con Firebase Sync
  */
 
 let cambiTurnoManuali = {};
@@ -312,6 +312,7 @@ function generaPopUpStampaDinner() {
         </body></html>`);
     popup.document.close();
 }
+
 // --- PRESENZE dinner
 function generaPopUpStampaPresDin() {
     const oggi = new Date();
@@ -386,7 +387,7 @@ function generaPopUpStampaPresDin() {
             colonneHtml[colIdx] += `
                 <div class="d-row">
                     <div class="d-cell d-class"><b>${classeDisplay}</b></div>
-                    <div class="d-cell d-name"><b>${s.cognome}</b>&nbsp;${s.nome || ""}</div>
+                    <div class="d-cell d-name"><b>${s.cognome}</b>&nbsp${s.nome || ""}</div>
                     <div class="d-cell d-day"></div>
                     <div class="d-cell d-day"></div>
                     <div class="d-cell d-day"></div>
@@ -426,37 +427,40 @@ function generaPopUpStampaPresDin() {
     const popup = window.open("", "_blank", "width=1200,height=800");
     popup.document.write(`
         <html><head><title>Stampa Appello Cena - Due Turni</title><style>
-            @page { size: A4 landscape; margin: 0.4cm; }
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 5px; color: #000; line-height: 1.1; }
-            .main-title { text-align: center; text-transform: uppercase; margin: 0; font-size: 1.2rem; font-weight: bold; }
-            .date-subtitle { text-align: center; font-size: 0.8rem; margin-bottom: 5px; color: #444; }
-            .timestamp { position: absolute; top: 5px; right: 10px; font-size: 0.6rem; color: #777; }
+            @page { size: A4 landscape; margin: 0.3cm; }
+            html, body { max-height: 100%; overflow: hidden; }
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 2px; color: #000; line-height: 1.0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             
-            .turno-section { margin-bottom: 15px; page-break-inside: avoid; }
-            .turno-title { background: #555; color: #fff; padding: 2px 8px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; border-radius: 3px; }
+            .main-title { text-align: center; text-transform: uppercase; margin: 0; font-size: 1.0rem; font-weight: bold; }
+            .date-subtitle { text-align: center; font-size: 0.75rem; margin-bottom: 3px; color: #444; }
+            .timestamp { position: absolute; top: 3px; right: 10px; font-size: 0.55rem; color: #777; }
             
-            .grid-container { display: flex; gap: 10px; justify-content: space-between; }
-            .colonna { width: 32.5%; display: flex; flex-direction: column; }
+            /* Impedisce drasticamente l'interruzione di pagina tra e dentro i turni */
+            .turno-section { margin-bottom: 6px; page-break-inside: avoid !important; break-inside: avoid; }
+            .turno-title { background: #555; color: #fff; padding: 1px 6px; font-size: 0.72rem; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; border-radius: 2px; }
             
-            .column-header { display: flex; background: #333; color: white; font-weight: bold; font-size: 0.6rem; text-transform: uppercase; border: 1px solid #000; }
-            .d-row { display: flex; font-size: 0.62rem; border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; align-items: stretch; height: 16px; }
+            .grid-container { display: flex; gap: 8px; justify-content: space-between; page-break-inside: avoid !important; }
+            .colonna { width: 32.8%; display: flex; flex-direction: column; }
             
-            .d-cell, .h-cell { padding: 1px 3px; text-align: center; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
+            .column-header { display: flex; background: #333; color: white; font-weight: bold; font-size: 0.55rem; text-transform: uppercase; border: 1px solid #000; height: 14px; }
+            .d-row { display: flex; font-size: 0.56rem; border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; align-items: stretch; height: 14px !important; box-sizing: border-box; }
+            
+            .d-cell, .h-cell { padding: 0px 2px; text-align: center; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; height: 100%; }
             
             /* Spaziature fisse e allineate al millimetro */
-            .d-class, .h-class { width: 40px; font-size: 0.58rem; }
+            .d-class, .h-class { width: 35px; font-size: 0.54rem; }
             .d-class { border-right: 1px solid #ccc; background: #f5f5f5; font-weight: bold; }
             .h-class { border-right: 1px solid #555; }
             
             .d-name, .h-name { flex-grow: 1; text-align: left; justify-content: flex-start; border-right: 1px solid #ccc; text-transform: uppercase; text-overflow: ellipsis; }
             .h-name { border-right: 1px solid #555; }
             
-            .d-day, .h-day { width: 22px; font-size: 0.58rem; font-weight: bold; }
+            .d-day, .h-day { width: 18px; font-size: 0.54rem; font-weight: bold; }
             .d-day { border-right: 1px solid #ccc; }
             .d-day:last-child { border-right: none; }
             .h-day { border-right: 1px solid #555; }
             
-            .no-print { text-align: center; margin-bottom: 10px; }
+            .no-print { text-align: center; margin-bottom: 5px; }
             @media print { .no-print { display: none; } }
         </style></head><body>
             <div class="timestamp">Generato il ${dataOggi} alle ${oraEsatta}</div>
@@ -464,7 +468,7 @@ function generaPopUpStampaPresDin() {
             <div class="date-subtitle">${dataTestuale}</div>
             
             <div class="no-print">
-                <button onclick="window.print()" style="padding:6px 40px; background: #27ae60; color:white; font-weight:bold; border-radius:20px; border:none; cursor:pointer; font-size:0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <button onclick="window.print()" style="padding:4px 30px; background: #27ae60; color:white; font-weight:bold; border-radius:20px; border:none; cursor:pointer; font-size:0.85rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     •STAMPA
                 </button>
             </div>
@@ -528,10 +532,8 @@ function generaPopUpStampaTransfer() {
         });
     });
 
-    // 3. RIPARTIZIONE BILANCIATA NELLE COLONNE SENZA SPEZZARE LE CLASSI
-    // Per gestire il fronte-retro su un unico foglio, usiamo 3 colonne fluide che vanno a capo
+    // 3. RIPARTIZIONE BILANCIATA NELLE COLONNE (STRUTTURA A MINI-TABELLE)
     const totaleElementi = tuttiStudenti.filter((s) => s.cognome && s.cognome.trim() !== "").length;
-    // Target indicativo per colonna per distribuire il carico
     const targetPerColonna = Math.ceil(totaleElementi / 3);
 
     const colonneHtml = ["", "", ""];
@@ -542,19 +544,25 @@ function generaPopUpStampaTransfer() {
         const studentiClasse = classi[nomeClasse];
         const quantiStudenti = studentiClasse.length;
 
-        // Se la colonna attuale ha già superato il target e non siamo all'ultima colonna,
-        // passiamo alla colonna successiva PRIMA di stampare la classe, per non spezzarla.
+        // Se la colonna attuale ha già elementi e l'aggiunta di questa classe supera vistosamente il target,
+        // cambiamo colonna prima di inizializzare la tabella della classe.
         if (
             elementiInColonnaCorrente > 0 &&
-            elementiInColonnaCorrente + quantiStudenti / 2 > targetPerColonna &&
+            elementiInColonnaCorrente + quantiStudenti / 1.5 > targetPerColonna &&
             colonnaCorrenteIdx < 2
         ) {
             colonnaCorrenteIdx++;
             elementiInColonnaCorrente = 0;
         }
 
+        // Generiamo una tabella indivisibile per questa specifica classe
+        let classeTableHtml = `
+            <div class="blocco-classe">
+                <table>
+                    <tbody>
+        `;
+
         studentiClasse.forEach((s, idx) => {
-            const isLastInClass = idx === quantiStudenti - 1;
             const roomNum = parseInt(s.room, 10);
             const isConvittore = !isNaN(roomNum) && roomNum >= 101 && roomNum <= 221;
             let roomInfo = s.room && s.room !== "-" ? s.room : "-";
@@ -565,11 +573,10 @@ function generaPopUpStampaTransfer() {
 
             let bgStyle = s.haLabOggi ? "background-color: #fff2cc;" : "";
             let classeBadge = s.haLabOggi ? `<b>${nomeClasse}</b> <span class="lab-badge">(LAB)</span>` : `<b>${nomeClasse}</b>`;
-            const extraClass = isLastInClass ? "row-break" : "";
             const esternoClass = !isConvittore ? "esterno" : "";
 
-            colonneHtml[colonnaCorrenteIdx] += `
-                <tr class="${extraClass} ${esternoClass}" style="${bgStyle}">
+            classeTableHtml += `
+                <tr class="${esternoClass}" style="${bgStyle}">
                     <td class="t-cell t-room">${roomInfo}</td>
                     <td class="t-cell t-name"><b>${s.cognome}</b>&nbsp;${s.nome || ""}</td>
                     <td class="t-cell t-class">${classeBadge}</td>
@@ -578,46 +585,61 @@ function generaPopUpStampaTransfer() {
             `;
             elementiInColonnaCorrente++;
         });
+
+        classeTableHtml += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        colonneHtml[colonnaCorrenteIdx] += classeTableHtml;
     });
 
     // 4. GENERAZIONE POP-UP E INTERFACCIA DI STAMPA
     const popup = window.open("", "_blank", "width=1200,height=800");
     popup.document.write(`
         <html><head><title>Transfer Lunch Completo - ${dataOggi}</title><style>
-            @page { size: A4 landscape; margin: 0.3cm; }
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; color: #000; line-height: 1.1; }
-            h2 { text-align: center; text-transform: uppercase; margin: 2px 0 0 0; font-size: 1.1rem; }
-            .date-subtitle { text-align: center; font-size: 0.8rem; margin-bottom: 5px; color: #444; }
-            .timestamp { position: absolute; top: 5px; right: 10px; font-size: 0.6rem; color: #777; }
+            @page { size: A4 portrait; margin: 0.25cm; }
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; color: #000; line-height: 1.0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            h2 { text-align: center; text-transform: uppercase; margin: 0; font-size: 1.0rem; }
+            .date-subtitle { text-align: center; font-size: 0.75rem; margin-bottom: 3px; color: #444; }
+            .timestamp { position: absolute; top: 3px; right: 10px; font-size: 0.55rem; color: #777; }
             
-            /* Layout a 3 colonne per ottimizzare il Fronte-Retro */
-            .grid-container { display: flex; gap: 8px; justify-content: space-between; }
-            .colonna { width: 33%; display: flex; flex-direction: column; }
+            /* Layout a 3 colonne */
+            .grid-container { display: flex; gap: 6px; justify-content: space-between; align-items: flex-start; }
+            .colonna { width: 33.1%; display: flex; flex-direction: column; }
             
-            /* Tabelle reali per linee verticali continue e perfette */
-            table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1.5px solid #000; }
-            th { background: #2c3e50; color: white; font-weight: bold; font-size: 0.58rem; text-transform: uppercase; padding: 3px 2px; border: 1px solid #000; }
+            /* Intestazioni fisse staccate per colonna */
+            .fake-header { display: flex; background: #2c3e50; color: white; font-weight: bold; font-size: 0.52rem; text-transform: uppercase; height: 14px; box-sizing: border-box; border: 1.2px solid #000; margin-bottom: 2px; }
+            .h-cell { padding: 2px 2px; text-align: left; display: flex; align-items: center; justify-content: center; height: 100%; box-sizing: border-box; border-right: 1px solid #000; }
+            .h-cell:last-child { border-right: none; }
             
-            .t-cell { padding: 2px 3px; font-size: 0.60rem; border-right: 1px solid #000; border-bottom: 1px solid #ddd; text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+            /* Blocco contenitore classe: IMPEDISCE l'interruzione di pagina a metà classe */
+            .blocco-classe { page-break-inside: avoid !important; break-inside: avoid-page !important; margin-bottom: 4px; width: 100%; }
+            
+            /* Tabelle compatte ad altezza controllata */
+            table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1.2px solid #000; }
+            tr { height: 15px !important; box-sizing: border-box; }
+            
+            .t-cell { padding: 0px 2px; font-size: 0.54rem; border-right: 1px solid #000; border-bottom: 1px solid #ddd; text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; height: 13px !important; line-height: 12px; box-sizing: border-box; }
+            tr:last-child .t-cell { border-bottom: none; } /* Pulisce l'ultimo bordo interno */
             .t-cell:last-child { border-right: none; }
             
-            /* Righe e Classi */
-            tr.row-break td { border-bottom: 2.5px solid #000 !important; }
-            tr.esterno td.t-room { border-left: 3px dashed #7f8c8d; }
+            tr.esterno td.t-room { border-left: 2px dashed #7f8c8d; }
             
-            /* Larghezze fisse colonne della tabella */
-            .t-room { width: 25px; text-align: center; font-weight: bold; background: #f5f5f5; }
-            .t-name { width: 110px; text-transform: uppercase; }
-            .t-class { width: 55px; text-align: center; }
-            .t-details { font-size: 0.55rem; color: #444; }
+            /* Larghezze fisse colonne */
+            .t-room, .h-room { width: 22px; text-align: center; }
+            .t-room { font-weight: bold; background: #f5f5f5; }
+            .t-name, .h-name { width: 105px; text-transform: uppercase; }
+            .t-class, .h-class { width: 50px; text-align: center; }
+            .t-details, .h-notes { flex-grow: 1; }
+            .t-details { font-size: 0.50rem; color: #444; }
             
-            .lab-badge { font-size: 0.48rem; color: #b7950b; font-weight: bold; }
+            .lab-badge { font-size: 0.44rem; color: #b7950b; font-weight: bold; }
             
-            .no-print { text-align: center; margin-bottom: 5px; }
+            .no-print { text-align: center; margin-bottom: 4px; }
             @media print { 
                 .no-print { display: none; }
-                /* Forza il browser a non tagliare le righe a metà */
-                tr { page-break-inside: avoid; }
             }
         </style></head><body>
             <div class="timestamp">Generato il ${dataOggi} alle ${oraEsatta}</div>
@@ -625,7 +647,7 @@ function generaPopUpStampaTransfer() {
             <div class="date-subtitle">${dataTestuale} — Studenti tot: <b>${totaleElementi}</b></div>
             
             <div class="no-print">
-                <button onclick="window.print()" style="padding:6px 30px; background:#27ae60; color:white; font-weight:bold; border-radius:20px; border:none; cursor:pointer; font-size:0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <button onclick="window.print()" style="padding:4px 30px; background:#27ae60; color:white; font-weight:bold; border-radius:20px; border:none; cursor:pointer; font-size:0.85rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     •STAMPA
                 </button>
             </div>
@@ -633,22 +655,16 @@ function generaPopUpStampaTransfer() {
             <div class="grid-container">
                 ${colonneHtml
                     .map((htmlDest) => {
-                        if (!htmlDest.trim()) return ""; // Evita tabelle vuote
+                        if (!htmlDest.trim()) return ""; // Evita colonne vuote
                         return `
                     <div class="colonna">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 25px;">Room</th>
-                                    <th style="width: 110px;">Cognome e Nome</th>
-                                    <th style="width: 55px;">Classe</th>
-                                    <th>Note</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${htmlDest}
-                            </tbody>
-                        </table>
+                        <div class="fake-header">
+                            <div class="h-cell h-room">Room</div>
+                            <div class="h-cell h-name">Cognome e Nome</div>
+                            <div class="h-cell h-class">Classe</div>
+                            <div class="h-cell h-notes">Note</div>
+                        </div>
+                        ${htmlDest}
                     </div>
                     `;
                     })
@@ -748,36 +764,36 @@ function generaPopUpStampaBusPomeriggio() {
     popup.document.write(`
         <html><head><title>Appello Bus Pomeriggio Settimanale</title><style>
             @page { size: A4 landscape; margin: 0.4cm; }
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 5px; color: #000; line-height: 1.1; }
-            h2 { text-align: center; text-transform: uppercase; margin: 2px 0 0 0; font-size: 1.1rem; }
-            .date-subtitle { text-align: center; font-size: 0.8rem; margin-bottom: 8px; color: #444; }
-            .timestamp { position: absolute; top: 5px; right: 10px; font-size: 0.6rem; color: #777; }
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 5px; color: #000; line-height: 1.1; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            h2 { text-align: center; text-transform: uppercase; margin: 5px 0 2px 0; font-size: 1.2rem; }
+            .date-subtitle { text-align: center; font-size: 0.85rem; margin-bottom: 12px; color: #444; }
+            .timestamp { position: absolute; top: 5px; right: 10px; font-size: 0.65rem; color: #777; }
             .grid-container { display: flex; gap: 10px; justify-content: space-between; }
             .colonna { width: 32.5%; display: flex; flex-direction: column; }
             
-            /* Struttura Header e Riga speculari con allineamento centrato per i giorni */
-            .column-header { display: flex; background: #333; color: white; font-weight: bold; font-size: 0.65rem; text-transform: uppercase; border: 1px solid #000; }
-            .bus-row { display: flex; font-size: 0.65rem; border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; align-items: stretch; page-break-inside: avoid; height: 16px; }
-            .class-separator { height: 4px; background: #333; border: 1px solid #000; margin: 1px 0; page-break-inside: avoid; }
+            /* Struttura Header e Riga con altezze aumentate a 22px */
+            .column-header { display: flex; background: #333; color: white; font-weight: bold; font-size: 0.70rem; text-transform: uppercase; border: 1px solid #000; height: 22px; box-sizing: border-box; }
+            .bus-row { display: flex; font-size: 0.72rem; border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; align-items: stretch; page-break-inside: avoid; height: 22px !important; box-sizing: border-box; }
+            .class-separator { height: 6px; background: #444; border: 1px solid #000; margin: 1px 0; page-break-inside: avoid; }
             
-            .b-cell, .h-cell { padding: 1px 2px; text-align: center; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
+            .b-cell, .h-cell { padding: 2px 4px; text-align: center; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; height: 100%; box-sizing: border-box; }
             
             /* Larghezze FISSE e IDENTICHE per colonne e intestazioni */
-            .b-class, .h-class { width: 45px; font-size: 0.58rem; }
+            .b-class, .h-class { width: 50px; font-size: 0.65rem; }
             .b-class { border-right: 1px solid #ccc; background: #f5f5f5; }
             .h-class { border-right: 1px solid #555; }
             
-            .b-name, .h-name { width: 105px; text-align: left; justify-content: flex-start; padding-left: 4px; }
+            .b-name, .h-name { width: 115px; text-align: left; justify-content: flex-start; padding-left: 6px; }
             .b-name { border-right: 1px solid #ccc; text-transform: uppercase; text-overflow: ellipsis; }
             .h-name { border-right: 1px solid #555; }
             
-            .b-day, .h-day { width: 20px; font-size: 0.6rem; }
+            .b-day, .h-day { width: 22px; font-size: 0.65rem; }
             .b-day { border-right: 1px solid #ccc; }
             .h-day { border-right: 1px solid #555; }
             
-            .b-notes, .h-notes { flex-grow: 1; text-align: left; justify-content: flex-start; padding-left: 4px; }
+            .b-notes, .h-notes { flex-grow: 1; text-align: left; justify-content: flex-start; padding-left: 6px; }
             
-            .no-print { text-align: center; margin-bottom: 8px; }
+            .no-print { text-align: center; margin-bottom: 12px; }
             @media print { .no-print { display: none; } }
         </style></head><body>
             <div class="timestamp">Generato il ${dataOggi} alle ${oraEsatta}</div>
@@ -1182,69 +1198,74 @@ function generaPopUpStampaConvitto() {
         <th>Room</th><th>Classe</th><th class="col-cognome">Cognome</th><th>Presente</th><th>Assente</th><th>Uscita</th><th>Ingresso</th><th>PP Uscita</th><th>PP Rientro</th><th>Dinner NO</th><th>Notte SI</th><th>Notte NO</th><th>Stand-by</th><th>7:30</th>
     </tr>`;
 
-    popup.document.write(`
-        <html><head><title>Riepilogo Convitto - ${dataStampa}</title><style>
-            @page { size: A3 portrait; margin: 0.3cm; }
-            body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; color: #000; }
-            h2 { text-align: center; text-transform: uppercase; font-size: 1.1em; margin: 6px 0; }
-            table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 10px; }
-            tr { height: 24px; max-height: 24px; }
-            th, td { border: 1px solid #000; padding: 2px 2px; text-align: center; font-size: 0.62em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; height: 24px; box-sizing: border-box; }
-            th { background: #f2f2f2; font-weight: bold; }
-            .room-header { background: #eee; font-weight: bold; width: 45px; white-space: normal; }
-            .border-bottom-bold { border-bottom: 2.5px solid #000 !important; }
-            .border-dashed { border-bottom: 1px dashed #999 !important; }
-            .col-cognome { text-align: left !important; padding-left: 6px !important; width: 130px; text-transform: uppercase; }
-            .bg-gray { background: #f9f9f9; }
-            .page-break { page-break-after: always; }
-            .footer-timestamp { text-align: right; font-size: 0.75em; margin-top: 15px; font-style: italic; color: #555; }
-            .no-print { text-align: center; margin: 20px; }
-            @media print { .no-print { display: none; } }
-        </style></head><body>
-            <div class="no-print"><button onclick="window.print()" style="padding:15px 50px; background:#27ae60; color:white; font-weight:bold; border-radius:80px; border:none; cursor:pointer;">•STAMPA</button></div>
-            <h2>MASCHILE - piano 1° - ${dataStampa}</h2>
-            <table>
-                <thead>${hookTestataTabella}</thead>
-                <tbody>
-                    ${camereOrdinate
-                        .map((room) => {
-                            let html = "";
-                            html += camere[room]
-                                .map((s, idx) => {
-                                    const isLastRow = idx === camere[room].length - 1;
-                                    const bClass = isLastRow ? 'class="border-bottom-bold"' : 'class="border-dashed"';
-                                    const bClassGray = isLastRow ? 'class="border-bottom-bold bg-gray"' : 'class="border-dashed bg-gray"';
-                                    
-                                    return `<tr>
-                                        ${idx === 0 ? `<td rowspan="${camere[room].length}" class="room-header border-bottom-bold">${room}</td>` : ""}
-                                        <td ${bClass}>${s.classe} ${s.percorso || ""}</td>
-                                        <td ${bClass} class="col-cognome"><b>${s.cognome}</b> ${s.gruppo ? "(" + s.gruppo + ")" : ""}</td>
-                                        <td ${bClass}>${s.presente ? "X" : ""}</td>
-                                        <td ${bClass}>${!s.presente ? "X" : ""}</td>
-                                        <td ${bClassGray}>${s.oraU}</td>
-                                        <td ${bClass}>${s.oraI}</td>
-                                        <td ${bClassGray}><b>${s.ppOut}</b></td>
-                                        <td ${bClass}><b>${s.ppIn}</b></td>
-                                        <td ${bClassGray}>${s.dinnerno === "1" ? "X" : ""}</td>
-                                        <td ${bClass}></td>
-                                        <td ${bClassGray}></td>
-                                        <td ${bClassGray}>${s.isStandBy ? "➖" : ""}</td>
-                                        <td ${bClass}>${s.bus ? "⭕" : ""}</td>
-                                    </tr>`;
-                                })
-                                .join("");
-                            
-                            if (room === "125") {
-                                html += `</tbody></table><div class="page-break"></div><h2>FEMMINILE - piano 2° - ${dataStampa}</h2><table><thead>${hookTestataTabella}</thead><tbody>`;
-                            }
-                            return html;
-                        })
-                        .join("")}
-                </tbody>
-            </table>
-            <div class="footer-timestamp">aggiornamento ${dataOggiStampa} ore ${oraStampa}</div>
-        </body></html>`);
-    popup.document.close();
+   popup.document.write(`
+    <html><head><title>Riepilogo Convitto - ${dataStampa}</title><style>
+        @page { size: A3 portrait; margin: 0.3cm; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        h2 { text-align: center; text-transform: uppercase; font-size: 1.1em; margin: 4px 0; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 5px; }
+        
+        /* Forziamo un'altezza fissa e ridotta sia sulle righe che sulle celle */
+        tr { height: 18px !important; }
+        th, td { border: 1px solid #000; padding: 1px 2px; text-align: center; font-size: 0.60em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; height: 18px !important; box-sizing: border-box; line-height: 16px; }
+        
+        th { background: #f2f2f2; font-weight: bold; }
+        .room-header { background: #eee; font-weight: bold; width: 45px; white-space: normal; line-height: 1.1; }
+        .border-bottom-bold { border-bottom: 2.5px solid #000 !important; }
+        .border-dashed { border-bottom: 1px dashed #999 !important; }
+        .col-cognome { text-align: left !important; padding-left: 4px !important; width: 130px; text-transform: uppercase; }
+        .bg-gray { background: #f9f9f9 !important; }
+        .page-break { page-break-after: always; page-break-inside: avoid; }
+        .footer-timestamp { text-align: right; font-size: 0.70em; margin-top: 5px; font-style: italic; color: #555; }
+        .no-print { text-align: center; margin: 10px; }
+        @media print { .no-print { display: none; } }
+    </style></head><body>
+        <div class="no-print"><button onclick="window.print()" style="padding:15px 50px; background:#27ae60; color:white; font-weight:bold; border-radius:80px; border:none; cursor:pointer;">•STAMPA</button></div>
+        <h2>MASCHILE - piano 1° - ${dataStampa}</h2>
+        <table>
+            <thead>${hookTestataTabella}</thead>
+            <tbody>
+                ${camereOrdinate
+                    .map((room) => {
+                        let html = "";
+                        html += camere[room]
+                            .map((s, idx) => {
+                                const isLastRow = idx === camere[room].length - 1;
+                                // Applichiamo in modo pulito le classi senza duplicare l'attributo class
+                                const bClass = isLastRow ? 'class="border-bottom-bold"' : 'class="border-dashed"';
+                                const bClassGray = isLastRow ? 'class="border-bottom-bold bg-gray"' : 'class="border-dashed bg-gray"';
+                                const bClassCognome = isLastRow ? 'class="border-bottom-bold col-cognome"' : 'class="border-dashed col-cognome"';
+                                
+                                return `<tr>
+                                    ${idx === 0 ? `<td rowspan="${camere[room].length}" class="room-header border-bottom-bold">${room}</td>` : ""}
+                                    <td ${bClass}>${s.classe} ${s.percorso || ""}</td>
+                                    <td ${bClassCognome}><b>${s.cognome}</b> ${s.gruppo ? "(" + s.gruppo + ")" : ""}</td>
+                                    <td ${bClass}>${s.presente ? "X" : ""}</td>
+                                    <td ${bClass}>${!s.presente ? "X" : ""}</td>
+                                    <td ${bClassGray}>${s.oraU}</td>
+                                    <td ${bClass}>${s.oraI}</td>
+                                    <td ${bClassGray}><b>${s.ppOut}</b></td>
+                                    <td ${bClass}><b>${s.ppIn}</b></td>
+                                    <td ${bClassGray}>${s.dinnerno === "1" ? "X" : ""}</td>
+                                    <td ${bClass}></td>
+                                    <td ${bClassGray}></td>
+                                    <td ${bClassGray}>${s.isStandBy ? "➖" : ""}</td>
+                                    <td ${bClass}>${s.bus ? "⭕" : ""}</td>
+                                </tr>`;
+                            })
+                            .join("");
+                        
+                        if (room === "125") {
+                            html += `</tbody></table><div class="page-break"></div><h2>FEMMINILE - piano 2° - ${dataStampa}</h2><table><thead>${hookTestataTabella}</thead><tbody>`;
+                        }
+                        return html;
+                    })
+                    .join("")}
+            </tbody>
+        </table>
+        <div class="footer-timestamp">aggiornamento ${dataOggiStampa} ore ${oraStampa}</div>
+    </body></html>`);
+popup.document.close();
 }
 // --- MATTINO BUS
 function generaPopUpStampaBus() {
