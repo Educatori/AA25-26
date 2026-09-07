@@ -6,6 +6,11 @@
   <style>
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background: #fffeea; }
+    th.sortable { cursor: pointer; user-select: none; }
+th.sortable:hover { background: #e0e0e0; }
+th.sortable::after { content: ' ⇅'; opacity: 0.4; font-size: 11px; }
+th.sort-asc::after { content: ' ▲'; opacity: 1; }
+th.sort-desc::after { content: ' ▼'; opacity: 1; }
     .container { max-width: 1400px; margin: auto; background: #fff7fb; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
     h1 { font-size: 1.5rem; margin-bottom: 1rem; }
     .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
@@ -29,7 +34,7 @@
     th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; white-space: nowrap; }
     th { background: #f0f0f0; position: sticky; top: 0; }
     td input { width: 100%; min-width: 80px; border: 1px solid #ccc; border-radius: 4px; padding: 4px 6px; }
-    .id-col { width: 50px; text-align: center; }
+    .id-col { width: 70px; text-align: center; }
     .cognome-col, .nome-col { min-width: 120px; }
     .classe-col, .room-col, .percorso-col, .gruppo-col { width: 100px; }
     .footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
@@ -41,14 +46,63 @@
 <div class="container">
   <h1> Gestione di tutti gli studenti </h1>
   <div class="toolbar">
-    <input type="file" id="fileInput" accept=".json" />
-    <button id="loadBtn">📂 Carica JSON</button>
+    <input type="file" id="fileInput" accept=".json,.js" />
+    <button id="loadBtn">📂 Carica JS/JSON</button>
+    
     <input type="text" id="searchInput" class="search-box" placeholder="Filtra per ID, cognome, nome o classe..." />
     <button id="exportJsonBtn" class="secondary">💾 Esporta JSON</button>
     <button id="exportJsBtn" class="secondary">📜 Esporta JavaScript</button>
     <button id="resetBtn" class="danger">⟳ Resetta modifiche</button>
   </div>
 
+  
+  <!-- PANNELLO AGGIUNGI STUDENTE -->
+<div id="addStudentPanel" class="replace-panel" style="display: none; border-left: 4px solid #28a745;">
+  <div>
+    <label>🆔 ID:</label>
+    <input type="number" id="newStudentId" placeholder="es. 125" />
+  </div>
+
+  <div>
+    <label>👤 Cognome:</label>
+    <input type="text" id="newStudentCognome" placeholder="Rossi" />
+  </div>
+
+  <div>
+    <label>👤 Nome:</label>
+    <input type="text" id="newStudentNome" placeholder="Mario" />
+  </div>
+
+  <div>
+    <label>🏫 Classe:</label>
+    <input type="text" id="newStudentClasse" placeholder="1A" />
+  </div>
+
+  <div>
+    <label>🚪 Room:</label>
+    <input type="text" id="newStudentRoom" placeholder="210" />
+  </div>
+
+  <div>
+    <label>🍴 Percorso:</label>
+    <input type="text" id="newStudentPercorso" placeholder="🍴" />
+  </div>
+
+  <div>
+    <label>👥 Gruppo:</label>
+    <input type="text" id="newStudentGruppo" placeholder="G1" />
+  </div>
+
+  <button id="confirmAddStudentBtn" class="warning">
+    ✅ Aggiungi
+  </button>
+
+  <button id="cancelAddStudentBtn" class="secondary">
+    ❌ Annulla
+  </button>
+</div>
+
+  
   <!-- PANNELLO SOSTITUISCI -->
   <div class="replace-panel">
     <div><label>📌 Campo:</label>
@@ -62,6 +116,8 @@
     <div><label>🔄 Nuovo valore:</label>
       <input type="text" id="replaceValue" placeholder="es. 3A, 210, 🍴, G1" />
     </div>
+    <button id="addStudentBtn">➕ Aggiungi studente</button>
+
     <button id="applyOnFilteredBtn" class="warning">✏️ Sostituisci su FILTRATI</button>
     <button id="applyOnAllBtn" class="warning2">🌍 Sostituisci su TUTTI</button>
     <span id="replaceCount" class="count-badge">0 studenti</span>
@@ -70,10 +126,17 @@
   <div style="overflow-x: auto; max-height: 70vh;">
     <table id="studentiTable">
       <thead>
-        <tr><th class="id-col">ID</th><th class="cognome-col">Cognome</th><th class="nome-col">Nome</th>
-          <th class="classe-col">Classe</th><th class="room-col">Room</th><th class="percorso-col">Percorso</th>
-          <th class="gruppo-col">Gruppo</th></tr>
-      </thead>
+  <tr>
+    <th class="id-col sortable" data-sort="id">ID</th>
+    <th class="cognome-col sortable" data-sort="cognome">Cognome</th>
+    <th class="nome-col sortable" data-sort="nome">Nome</th>
+    <th class="classe-col sortable" data-sort="classe">Classe</th>
+    <th class="room-col sortable" data-sort="room">Room</th>
+    <th class="percorso-col sortable" data-sort="percorso">Percorso</th>
+    <th class="gruppo-col sortable" data-sort="gruppo">Gruppo</th>
+    <th style="width: 70px; text-align: center;">Azioni</th>
+  </tr>
+</thead>
       <tbody id="tableBody"></tbody>
     </table>
   </div>
@@ -86,9 +149,95 @@
   // Variabili globali
   let masterData = [];     
   let currentData = [];    
-  let filteredData = [];    
+  let filteredData = [];   
+  
+  // Variabili globali per l'ordinamento
+let currentSortField = 'id'; // Campo predefinito
+let currentSortAsc = true;   // true = ascendente, false = discendente
+
+// Funzione per ordinare un array in base al campo corrente
+function sortData(array) {
+  return array.sort((a, b) => {
+    let valA = a[currentSortField] ?? '';
+    let valB = b[currentSortField] ?? '';
+
+    // Gestione ordinamento numerico (es. ID) vs testuale
+    if (typeof valA === 'number' && typeof valB === 'number') {
+      return currentSortAsc ? valA - valB : valB - valA;
+    }
+
+    // Converti in stringa per ordinamento alfabetico case-insensitive
+    valA = valA.toString().toLowerCase();
+    valB = valB.toString().toLowerCase();
+
+    if (valA < valB) return currentSortAsc ? -1 : 1;
+    if (valA > valB) return currentSortAsc ? 1 : -1;
+    return 0;
+  });
+}
+
+// Sostituisci o aggiorna la funzione applyFilter esistente
+function applyFilter() {
+  const searchTerm = searchInput.value.trim().toLowerCase();
+  
+  if (!searchTerm) {
+    filteredData = [...currentData];
+  } else {
+    filteredData = currentData.filter(s => 
+      s.id.toString().includes(searchTerm) ||
+      s.cognome.toLowerCase().includes(searchTerm) ||
+      s.nome.toLowerCase().includes(searchTerm) ||
+      (s.classe && s.classe.toLowerCase().includes(searchTerm))
+    );
+  }
+
+  // Applica l'ordinamento dopo il filtraggio
+  sortData(filteredData);
+  
+  renderTable();
+  updateReplaceCount();
+  updateSortIndicators();
+}
+
+// Aggiorna la grafica delle freccette nelle intestazioni
+function updateSortIndicators() {
+  document.querySelectorAll('th.sortable').forEach(th => {
+    th.classList.remove('sort-asc', 'sort-desc');
+    if (th.getAttribute('data-sort') === currentSortField) {
+      th.classList.add(currentSortAsc ? 'sort-asc' : 'sort-desc');
+    }
+  });
+}
+
+// Inizializza gli eventi di click sulle intestazioni della tabella
+document.querySelectorAll('th.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    const field = th.getAttribute('data-sort');
+    if (currentSortField === field) {
+      // Inverte la direzione se si clicca sullo stesso campo
+      currentSortAsc = !currentSortAsc;
+    } else {
+      currentSortField = field;
+      currentSortAsc = true;
+    }
+    applyFilter();
+  });
+});
 
   // DOM elements
+  const addStudentBtn = document.getElementById('addStudentBtn');
+const addStudentPanel = document.getElementById('addStudentPanel');
+const confirmAddStudentBtn = document.getElementById('confirmAddStudentBtn');
+const cancelAddStudentBtn = document.getElementById('cancelAddStudentBtn');
+
+const newStudentId = document.getElementById('newStudentId');
+const newStudentCognome = document.getElementById('newStudentCognome');
+const newStudentNome = document.getElementById('newStudentNome');
+const newStudentClasse = document.getElementById('newStudentClasse');
+const newStudentRoom = document.getElementById('newStudentRoom');
+const newStudentPercorso = document.getElementById('newStudentPercorso');
+const newStudentGruppo = document.getElementById('newStudentGruppo');
+
   const fileInput = document.getElementById('fileInput');
   const loadBtn = document.getElementById('loadBtn');
   const searchInput = document.getElementById('searchInput');
@@ -109,26 +258,181 @@
     replaceCountSpan.innerText = `${count} ${count === 1 ? 'studente' : 'studenti'}`;
   }
 
-  // Carica JSON da file
-  function loadJSONFromFile(file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = JSON.parse(e.target.result);
-        if (Array.isArray(data)) {
-          masterData = JSON.parse(JSON.stringify(data));
-          currentData = JSON.parse(JSON.stringify(data));
-          applyFilter();
-          statusMsg.innerText = `✅ Caricati ${currentData.length} studenti.`;
-        } else {
-          throw new Error('Il file non contiene un array');
-        }
-      } catch (err) {
-        statusMsg.innerText = `❌ Errore nel parsing JSON: ${err.message}`;
+  // Carica JSON o JavaScript da file
+function loadDataFromFile(file) {
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    const content = e.target.result;
+
+    try {
+      let data;
+
+      // ============================
+      // FILE JSON
+      // ============================
+      if (file.name.toLowerCase().endsWith('.json')) {
+        data = JSON.parse(content);
       }
-    };
-    reader.readAsText(file);
+
+      // ============================
+      // FILE JAVASCRIPT
+      // ============================
+      else if (file.name.toLowerCase().endsWith('.js')) {
+        data = extractStudentsFromJS(content);
+      }
+
+      else {
+        throw new Error('Formato file non supportato');
+      }
+
+      // Controlla che sia effettivamente un array
+      if (!Array.isArray(data)) {
+        throw new Error('Il file non contiene un array di studenti');
+      }
+
+      // Copia dei dati
+      masterData = JSON.parse(JSON.stringify(data));
+      currentData = JSON.parse(JSON.stringify(data));
+
+      applyFilter();
+
+      statusMsg.innerText =
+        `✅ Caricati ${currentData.length} studenti da "${file.name}".`;
+
+    } catch (err) {
+      statusMsg.innerText =
+        `❌ Errore nel caricamento: ${err.message}`;
+    }
+  };
+
+  reader.readAsText(file);
+}
+// Estrae l'array di studenti da un file JavaScript
+function extractStudentsFromJS(content) {
+  // Cerca l'inizio dell'array:
+  // const tuttiStudenti = [
+  const startMatch = content.match(
+    /(?:const|let|var)\s+tuttiStudenti\s*=\s*\[/
+  );
+
+  if (!startMatch) {
+    throw new Error(
+      'Non ho trovato "const tuttiStudenti = [...]" nel file JavaScript.'
+    );
   }
+
+  // Posizione dell'inizio dell'array
+  const startIndex = startMatch.index + startMatch[0].length - 1;
+
+  // Trova la parentesi quadra di chiusura corrispondente
+  let depth = 0;
+  let endIndex = -1;
+  let inString = false;
+  let stringChar = '';
+  let escaped = false;
+
+  for (let i = startIndex; i < content.length; i++) {
+    const char = content[i];
+
+    // Gestione delle stringhe
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+
+      if (char === '\\') {
+        escaped = true;
+        continue;
+      }
+
+      if (char === stringChar) {
+        inString = false;
+      }
+
+      continue;
+    }
+
+    // Inizio stringa
+    if (char === '"' || char === "'") {
+      inString = true;
+      stringChar = char;
+      continue;
+    }
+
+    // Parentesi quadre
+    if (char === '[') {
+      depth++;
+    }
+
+    if (char === ']') {
+      depth--;
+
+      if (depth === 0) {
+        endIndex = i;
+        break;
+      }
+    }
+  }
+
+  if (endIndex === -1) {
+    throw new Error(
+      'Non è riuscito a trovare la fine dell\'array tuttiStudenti.'
+    );
+  }
+
+  // Prende solamente il contenuto dell'array
+  let arrayText = content.substring(startIndex, endIndex + 1);
+
+  // -----------------------------------------
+  // Rimuove i commenti // ...
+  // -----------------------------------------
+  arrayText = arrayText.replace(
+    /\/\/.*$/gm,
+    ''
+  );
+
+  // -----------------------------------------
+  // Trasforma le proprietà JavaScript:
+  //
+  // id: 1
+  // cognome: "BIDONE"
+  //
+  // in proprietà JSON:
+  //
+  // "id": 1
+  // "cognome": "BIDONE"
+  // -----------------------------------------
+  arrayText = arrayText.replace(
+    /([{,]\s*)([A-Za-z_$][\w$]*)\s*:/g,
+    '$1"$2":'
+  );
+
+  // -----------------------------------------
+  // Rimuove eventuali virgole finali
+  // -----------------------------------------
+  arrayText = arrayText.replace(
+    /,\s*([}\]])/g,
+    '$1'
+  );
+
+  // -----------------------------------------
+  // Converte l'array in oggetti JavaScript
+  // -----------------------------------------
+  try {
+    return JSON.parse(arrayText);
+  } catch (err) {
+    console.error('Contenuto convertito:', arrayText);
+
+    throw new Error(
+      'Il formato dell\'array JavaScript non è riconoscibile: ' +
+      err.message
+    );
+  }
+}
+
+
 
   // Filtro (supporta anche ID)
   function applyFilter() {
@@ -148,23 +452,51 @@
   }
 
   // Render tabella con input editabili
+  // Render tabella con input editabili (incluso ID)
   function renderTable() {
     if (!tableBody) return;
     tableBody.innerHTML = '';
     for (const student of filteredData) {
       const row = tableBody.insertRow();
-      // ID
+      
+      // ID (editabile)
       const cellId = row.insertCell(0);
-      cellId.textContent = student.id;
+      const idInput = document.createElement('input');
+      idInput.type = 'number';
+      idInput.value = student.id;
+      idInput.style.textAlign = 'center';
+      idInput.addEventListener('change', (e) => {
+        const newId = Number(e.target.value);
+        if (!newId) {
+          statusMsg.innerText = '⚠️ L’ID non può essere vuoto o 0.';
+          e.target.value = student.id;
+          return;
+        }
+
+        // Controllo se l'ID inserito è già in uso da un altro studente
+        const duplicate = currentData.find(s => Number(s.id) === newId && s !== student);
+        if (duplicate) {
+          statusMsg.innerText = `⚠️ ID ${newId} già utilizzato da ${duplicate.cognome} ${duplicate.nome}.`;
+          e.target.value = student.id; // Ripristina il valore precedente
+          return;
+        }
+
+        student.id = newId;
+        statusMsg.innerText = `✅ ID aggiornato a ${newId} per ${student.cognome} ${student.nome}.`;
+      });
+      cellId.appendChild(idInput);
       cellId.className = 'id-col';
+
       // Cognome
       const cellCognome = row.insertCell(1);
       cellCognome.textContent = student.cognome;
       cellCognome.className = 'cognome-col';
+
       // Nome
       const cellNome = row.insertCell(2);
       cellNome.textContent = student.nome;
       cellNome.className = 'nome-col';
+
       // Classe (editabile)
       const cellClasse = row.insertCell(3);
       const classeInput = document.createElement('input');
@@ -175,6 +507,7 @@
       });
       cellClasse.appendChild(classeInput);
       cellClasse.className = 'classe-col';
+
       // Room
       const cellRoom = row.insertCell(4);
       const roomInput = document.createElement('input');
@@ -185,6 +518,7 @@
       });
       cellRoom.appendChild(roomInput);
       cellRoom.className = 'room-col';
+
       // Percorso
       const cellPercorso = row.insertCell(5);
       const percorsoInput = document.createElement('input');
@@ -196,6 +530,7 @@
       });
       cellPercorso.appendChild(percorsoInput);
       cellPercorso.className = 'percorso-col';
+
       // Gruppo
       const cellGruppo = row.insertCell(6);
       const gruppoInput = document.createElement('input');
@@ -207,7 +542,29 @@
       });
       cellGruppo.appendChild(gruppoInput);
       cellGruppo.className = 'gruppo-col';
-    }
+
+      // Pulsante elimina
+      const cellDelete = row.insertCell(7);
+      cellDelete.style.textAlign = 'center';
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.textContent = '🗑️';
+      deleteBtn.title = 'Elimina studente';
+
+      deleteBtn.style.background = '#dc3545';
+      deleteBtn.style.color = 'white';
+      deleteBtn.style.border = 'none';
+      deleteBtn.style.borderRadius = '5px';
+      deleteBtn.style.padding = '5px 8px';
+      deleteBtn.style.cursor = 'pointer';
+
+      deleteBtn.addEventListener('click', () => {
+        deleteStudent(student);
+      });
+
+      cellDelete.appendChild(deleteBtn);
+    }    
   }
 
   // Sostituzione su un array
@@ -274,17 +631,31 @@
 
   // Esporta JavaScript
   function exportToJS() {
-    const varName = 'tuttiStudenti';
-    const content = `const ${varName} = ${JSON.stringify(currentData, null, 2)};\n\nexport default ${varName}; // se usi moduli\n// Oppure copia direttamente l'array nel tuo codice.`;
-    const blob = new Blob([content], { type: 'text/javascript' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'studenti_aggiornati.js';
-    a.click();
-    URL.revokeObjectURL(url);
-    statusMsg.innerText = '📜 File JavaScript esportato. Copia la costante nel tuo codice.';
-  }
+  const varName = 'tuttiStudenti';
+
+  const content =
+    `const ${varName} = ${JSON.stringify(currentData, null, 4)};\n`;
+
+  const blob = new Blob(
+    [content],
+    { type: 'text/javascript;charset=utf-8' }
+  );
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'studenti_aggiornati.js';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  URL.revokeObjectURL(url);
+
+  statusMsg.innerText =
+    '📜 File JavaScript esportato come "studenti_aggiornati.js"';
+}
+
 
   // Resetta modifiche
   function resetChanges() {
@@ -297,14 +668,169 @@
     statusMsg.innerText = '🔄 Modifiche annullate. Dati tornati allo stato originale.';
   }
 
+  // Mostra il pannello per aggiungere uno studente
+function showAddStudentPanel() {
+  addStudentPanel.style.display = 'flex';
+
+  // Calcola automaticamente il prossimo ID
+  if (currentData.length > 0) {
+    const maxId = Math.max(
+      ...currentData.map(s => Number(s.id) || 0)
+    );
+
+    newStudentId.value = maxId + 1;
+  } else {
+    newStudentId.value = 1;
+  }
+
+  newStudentCognome.focus();
+}
+
+
+// Nasconde il pannello
+function hideAddStudentPanel() {
+  addStudentPanel.style.display = 'none';
+
+  newStudentId.value = '';
+  newStudentCognome.value = '';
+  newStudentNome.value = '';
+  newStudentClasse.value = '';
+  newStudentRoom.value = '';
+  newStudentPercorso.value = '';
+  newStudentGruppo.value = '';
+}
+
+
+// Aggiunge il nuovo studente
+function addStudent() {
+
+  const id = Number(newStudentId.value);
+  const cognome = newStudentCognome.value.trim();
+  const nome = newStudentNome.value.trim();
+  const classe = newStudentClasse.value.trim();
+  const room = newStudentRoom.value.trim();
+  const percorso = newStudentPercorso.value.trim();
+  const gruppo = newStudentGruppo.value.trim();
+
+  // Controllo campi obbligatori
+  if (!id) {
+    statusMsg.innerText = '⚠️ Inserisci un ID.';
+    newStudentId.focus();
+    return;
+  }
+
+  if (!cognome) {
+    statusMsg.innerText = '⚠️ Inserisci il cognome.';
+    newStudentCognome.focus();
+    return;
+  }
+
+  if (!nome) {
+    statusMsg.innerText = '⚠️ Inserisci il nome.';
+    newStudentNome.focus();
+    return;
+  }
+
+  // Controlla ID duplicato
+  const existingStudent = currentData.find(
+    student => Number(student.id) === id
+  );
+
+  if (existingStudent) {
+    statusMsg.innerText =
+      `⚠️ L'ID ${id} è già utilizzato da ${existingStudent.cognome} ${existingStudent.nome}.`;
+
+    newStudentId.focus();
+    return;
+  }
+
+  // Crea nuovo studente
+  const newStudent = {
+    id: id,
+    cognome: cognome,
+    nome: nome,
+    classe: classe,
+    room: room,
+    percorso: percorso,
+    gruppo: gruppo
+  };
+
+  // Aggiunge al dataset principale
+  currentData.push(newStudent);
+
+  // Aggiorna masterData così il nuovo studente
+  // rimane anche dopo "Resetta modifiche"
+  masterData.push(
+    JSON.parse(JSON.stringify(newStudent))
+  );
+
+  // Aggiorna la tabella
+  applyFilter();
+
+  // Chiude il pannello
+  hideAddStudentPanel();
+
+  statusMsg.innerText =
+    `✅ Studente aggiunto: ${cognome} ${nome} (ID ${id}).`;
+}
+
+  
+  function deleteStudent(student) {
+
+  const nomeCompleto =
+    `${student.cognome} ${student.nome}`;
+
+  if (!confirm(
+    `⚠️ Vuoi eliminare definitivamente questo studente?\n\n` +
+    `${nomeCompleto}\n` +
+    `ID: ${student.id}\n` +
+    `Classe: ${student.classe || '-'}`
+  )) {
+    return;
+  }
+
+  // Elimina da currentData
+  currentData = currentData.filter(
+    s => s !== student
+  );
+
+  // Elimina anche da masterData
+  masterData = masterData.filter(
+    s => Number(s.id) !== Number(student.id)
+  );
+
+  // Aggiorna tabella
+  applyFilter();
+
+  statusMsg.innerText =
+    `🗑️ Studente ${nomeCompleto} eliminato.`;
+}
+
+  
   // Eventi
+  
+  addStudentBtn.addEventListener('click', showAddStudentPanel);
+
+confirmAddStudentBtn.addEventListener(
+  'click',
+  addStudent
+);
+
+cancelAddStudentBtn.addEventListener(
+  'click',
+  hideAddStudentPanel
+);
+
   loadBtn.addEventListener('click', () => {
-    if (fileInput.files.length === 0) {
-      statusMsg.innerText = '⚠️ Seleziona un file JSON prima di caricare.';
-      return;
-    }
-    loadJSONFromFile(fileInput.files[0]);
-  });
+  if (fileInput.files.length === 0) {
+    statusMsg.innerText =
+      '⚠️ Seleziona un file JSON o JavaScript prima di caricare.';
+    return;
+  }
+
+  loadDataFromFile(fileInput.files[0]);
+});
+
   searchInput.addEventListener('input', () => applyFilter());
   exportJsonBtn.addEventListener('click', exportToJSON);
   exportJsBtn.addEventListener('click', exportToJS);
